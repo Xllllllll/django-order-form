@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>Форма заказа</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../styles/reset.css">
+<link rel="stylesheet" type="text/css" href="../styles/mysite1.css?v=1">
+<script type="text/javascript" src="../scripts/jquery-1.4.3.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    var coreModuleList = new Array();
+    {% for i in core_module_list %}
+        coreModuleList[eval({{ forloop.counter }}-1)]="id_module_"+(eval({{ i.id }})-1);
+    {% endfor %}
+    for (i=0;i<coreModuleList.length;i++){
+        $('#'+coreModuleList[i]).attr('checked',true);
+        $('#'+coreModuleList[i]).attr('disabled','disabled');
+    };
+});
+</script>
+<script type="text/javascript" src="../scripts/js.js?v=1"></script>
+</head>
+
+<body>
+    <div id="main">
+        <form method="post" action="." enctype="multipart/form-data">
+            <div id="object">
+                {% if formObject %}
+                    {# {% csrf_token %} #}
+                        {{ formObject.as_p }}
+                {% endif %}
+            </div>
+            <div id="sets_panel">
+                <ul id="menu">
+                    <li id="item1">
+                        <a class='passive' href="#">Готовые предложения</a>
+                    </li>
+                    <li id="item2">
+                        <a class='active' href="#">Выбор модулей и дизайна</a>
+                    </li>
+                </ul>
+                <div id="sets"></div>
+                <input type="submit" value="Отправить" id="submit">
+            </div>
+            <div id="summ">
+                <label for="id_summ">Сумма заказа:</label>
+                <input id="id_summ" type="text" />
+            </div>
+        </form>
+        <div id="presets">
+            <ul>
+                {% for i in preset_list %}
+                <li class='preset_item'>
+                    <label>
+                        <input type="radio" name="name" id="id_{{ i.id }}" value={{ i.id }}>{{ i.title }}
+                    </label>
+                    <div class="text">{{ i.text|safe }}</div>
+                    <ul>
+                        <li>
+                            <span class="title">&laquo;{{ i.design.title|capfirst }}&raquo;, </span>
+                            <span>цена: 
+                                <span class="price">{{ i.design.price }}</span> руб.
+                            </span> 
+                            <span class="text">{{ i.design.text|safe }}</span>
+                            {% for i in i.design.get_photos %}
+                                <a href="/media/{{ i.foto }}"><img src="/media/{{ i.thumb }}" alt="" /></a>
+                            {% endfor %}
+                        </li>
+                    {% for i in i.get_modules %}
+                        <li>
+                            <span>&laquo;{{ i.title|capfirst }}&raquo;, </span>
+                            <div class="text">{{ i.text|safe }}</div>
+                            <span>цена: 
+                                <span class="price">{{ i.price }}</span> руб.
+                                {% if i.is_core %}
+                                <span class="core_module">базовый</span>
+                                {% endif %}
+                            </span>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                </li> 
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
